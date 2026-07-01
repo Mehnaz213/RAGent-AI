@@ -1,6 +1,12 @@
+# Import the OpenAI client from the openai package
 from openai import OpenAI
+# Import dotenv to load environment variables
 from dotenv import load_dotenv
+# Import the os module to read environment variables
 import os
+# Import the function used to retrieve relevant document context
+from chatbot.retriever import retrieve_context
+
 # Load environment variables from the .env file
 load_dotenv()
 # Read the API key from the .env file
@@ -18,31 +24,38 @@ chat_history = [
     {
         "role": "system",
         "content": (
-            "You are an Enterprise AI Knowledge Assistant. "
-            "Provide professional and helpful responses. "
-            "If you don't know the answer, clearly say so instead of making up information."
+            "You are an Enterprise AI Knowledge Assistant.\n"
+            "Answer the user's question only using the provided context.\n"
+            "If the answer is not present in the context, clearly state that the information is not available in the provided document.\n"
+            "Do not make up or assume information.\n"
+            "Provide clear, professional, and concise responses."
         )
     }
 ]
+
 # Keep the chatbot running until the user exits
 while True:
-
     # Take a question from the user
     user_input = input("YOU: ")
-
     # Exit the chatbot if the user types 'exit'
     if user_input.lower() == "exit":
         print("Goodbye! 👋")
         break
-
-    # Add the user's message to the conversation history
+    # Retrieve the most relevant context from the vector database
+    context = retrieve_context(user_input)
+    # Add the user's question along with the retrieved context
     chat_history.append(
         {
-            "role": "user",
-            "content": user_input
+        "role": "user",
+        "content": (
+            f"""Context:
+    {context}
+    Question:
+    {user_input}
+    """
+           )
         }
     )
-
     # Send the conversation history to the AI model
     response = client.chat.completions.create(
         model=model,

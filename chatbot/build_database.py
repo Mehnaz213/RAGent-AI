@@ -28,7 +28,7 @@ for page_number, page in enumerate(pages, start=1):
     document_text += text + "\n"
     print(text)
 # Display the complete document
-print(document_text)
+#print(document_text)
 
 # Number of characters in each chunk
 #chunk_size = 200
@@ -76,11 +76,17 @@ print(f"\nTotal Embeddings Created: {len(embeddings)}")
 # Display the dimension of one embedding vector
 print(f"Embedding Dimension: {len(embeddings[0])}")
 # Display the first embedding vector
-print(embeddings[0])
+#print(embeddings[0])
 
 # Create a ChromaDB client
 client = chromadb.PersistentClient(path="vector_db")
-# Create or get a collection
+# Delete the existing collection if it already exists
+try:
+    client.delete_collection(name="employee_handbook")
+    print("Existing collection deleted.")
+except:
+    pass
+# Create a new collection
 collection = client.get_or_create_collection(
     name="employee_handbook"
 )
@@ -92,20 +98,3 @@ collection.add(
 )
 # Display a success message
 print("\nEmbeddings successfully stored in ChromaDB!")
-
-#Retrieval
-# Retrieve relevant context for a user query
-def retrieve_context(query):
-    # Convert the user question into an embedding vector
-    query_embedding = embedding_model.encode(query)
-    # Search for the most relevant chunks
-    results = collection.query(
-        query_embeddings=[query_embedding.tolist()],
-        n_results=2
-    )
-    # Get the retrieved chunks
-    retrieved_chunks = results["documents"][0]
-    # Combine all retrieved chunks into one context
-    context = "\n".join(retrieved_chunks)
-    # Return the final context
-    return context
