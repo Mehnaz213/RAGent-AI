@@ -41,8 +41,11 @@ while True:
     if user_input.lower() == "exit":
         print("Goodbye! 👋")
         break
-    # Retrieve the most relevant context from the vector database
-    context = retrieve_context(user_input)
+    # Retrieve context only from the HR Policy Manual
+    context, retrieved_metadata = retrieve_context(
+       user_input,
+       source="HR_Policy_Manual.pdf"
+    )
     # Add the user's question along with the retrieved context
     chat_history.append(
         {
@@ -75,3 +78,13 @@ while True:
 
     # Display the AI's response
     print(ai_response)
+    # Get all unique source documents
+    sources = {
+        item["source"]
+        for item in retrieved_metadata
+    }
+    # Display the source documents used to answer the question
+    print("\n📄 Sources:")
+
+    for source in sources:
+        print(f"- {source}")
