@@ -13,6 +13,8 @@ load_dotenv()
 api_key=os.getenv("OPENROUTER_API_KEY")
 # Read the model name from the .env file
 model = os.getenv("OPENROUTER_MODEL")
+# Maximum number of recent conversation messages to keep (excluding the system prompt)
+MAX_HISTORY = 10
 # Create the OpenAI client object
 client=OpenAI(
     api_key=api_key,
@@ -46,7 +48,7 @@ while True:
        user_input,
        source="HR_Policy_Manual.pdf"
     )
-    # Add the user's question along with the retrieved context
+    # Add the retrieved context and the user's question to the conversation history
     chat_history.append(
         {
         "role": "user",
@@ -75,7 +77,14 @@ while True:
             "content": ai_response
         }
     )
-
+    # Keep only the system prompt and the recent conversation
+    if len(chat_history) > MAX_HISTORY + 1:
+        # Create a new chat history list
+        chat_history = [
+        # Keep the first message (the system prompt)
+        chat_history[0]
+        # Add the last MAX_HISTORY conversation messages
+        ] + chat_history[-MAX_HISTORY:]  
     # Display the AI's response
     print(ai_response)
     # Get all unique source documents
