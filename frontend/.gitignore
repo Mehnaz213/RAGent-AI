@@ -1,0 +1,56 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment Variables
+.env
+
+# Vector Database & Uploads
+vector_db/
+uploads/
+
+#Node js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+#Next.js
+.next/
+out/
+
+# Build Files
+build/
+dist/
+coverage/
+
+# VS Code
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+*.log
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+.vercel/
+
+# Yarn
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Misc
+*.pem
