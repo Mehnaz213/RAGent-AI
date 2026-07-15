@@ -1,31 +1,292 @@
-# AI Knowledge Assistant
+<h1 align="center">
+🤖 RAGent AI — Enterprise Knowledge Assistant
+</h1>
 
-An AI-powered conversational assistant built using Python and OpenRouter.
+<p align="center">
+An enterprise-grade Retrieval-Augmented Generation (RAG) assistant that enables employees to retrieve accurate information from organizational documents using AI-powered semantic search, vector embeddings, and Large Language Models.
+</p>
 
-## Current Features
+<p align="center">
 
-- Interactive AI chatbot
-- Conversation memory
-- System prompt
-- OpenRouter API integration
-- Environment variable support
-- Modular project structure
+<img src="https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python"/>
 
-## Tech Stack
+<img src="https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi"/>
 
-- Python
-- OpenRouter
-- OpenAI Python SDK
-- dotenv
+<img src="https://img.shields.io/badge/Next.js-Frontend-black?style=for-the-badge&logo=nextdotjs"/>
 
-## Upcoming Features
+<img src="https://img.shields.io/badge/React-TypeScript-61DAFB?style=for-the-badge&logo=react"/>
 
-- RAG (Retrieval-Augmented Generation)
-- PDF & DOCX document support
-- ChromaDB
+<img src="https://img.shields.io/badge/TailwindCSS-UI-38B2AC?style=for-the-badge&logo=tailwind-css"/>
+
+<img src="https://img.shields.io/badge/ChromaDB-Vector_DB-orange?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/LangChain-RAG-success?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/HuggingFace-Embeddings-yellow?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite"/>
+
+<img src="https://img.shields.io/badge/JWT-Authentication-red?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge"/>
+
+</p>
+
+---
+
+# 📖 Overview
+
+RAGent AI is an Enterprise Knowledge Assistant designed to help employees retrieve information from company documents through natural language conversations.
+
+The system combines Retrieval-Augmented Generation (RAG), semantic search, vector embeddings, and Large Language Models to provide accurate, context-aware answers with source citations.
+
+Administrators can manage users, upload organizational documents, monitor analytics, and maintain the enterprise knowledge base, while employees can securely interact with the chatbot to access company information instantly.
+
+---
+
+# ✨ Features
+
+### 🤖 AI Assistant
+
+- Enterprise RAG Chatbot
+- Semantic Document Search
+- Context-Aware Responses
+- Source Citations
+- Persistent Conversations
+
+### 📚 Knowledge Base
+
+- Upload PDF Documents
+- Automatic Text Chunking
+- Embedding Generation
+- ChromaDB Vector Storage
+- Document Search
+- Delete Documents
+
+### 👥 User Management
+
+- JWT Authentication
+- Admin & Employee Roles
+- Role-Based Access Control
+- Password Management
+- User Creation
+
+### 📈 Analytics
+
+- Total Users
+- Total Conversations
+- Total Messages
+- Recent Conversations
+
+### 💬 Chat Management
+
+- New Chat
+- Chat History
+- Conversation Search
+- Rename Conversations
+- Delete Conversations
+
+### 🎨 UI Features
+
+- Responsive Design
+- Dark / Light Theme
+- Modern Enterprise Dashboard
+- Professional Admin Panel
+
+---
+
+# 🏗️ System Architecture
+
+```
+                  User
+
+                    │
+
+                    ▼
+
+           Next.js Frontend
+
+                    │
+
+                    ▼
+
+            FastAPI Backend
+
+        ┌───────────┴────────────┐
+
+        ▼                        ▼
+
+    SQLite DB              ChromaDB
+
+        ▼                        ▼
+
+ Authentication          Vector Embeddings
+
+        │                        │
+
+        └──────────► Large Language Model
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Lucide Icons
+
+## Backend
+
+- FastAPI
+- SQLAlchemy
+- JWT Authentication
+- Passlib
+- SQLite
+
+## AI Stack
+
 - LangChain
-- Agentic AI
-- Machine Learning document classification
-- Analytics Dashboard
-- FastAPI Backend
-- React Frontend
+- Sentence Transformers
+- ChromaDB
+- Hugging Face Embeddings
+- PyPDF
+
+---
+
+# 📸 Screenshots
+
+## Login Page
+
+![Login](assets/login.png)
+
+---
+
+## Chat Interface
+
+![Chat](assets/chat.png)
+
+---
+
+## Chat History
+
+![History](assets/history.png)
+
+---
+
+## Knowledge Base
+
+![Knowledge Base](assets/knowledge-base.png)
+
+---
+
+## Analytics Dashboard
+
+![Analytics](assets/analytics.png)
+
+---
+
+## Settings
+
+![Settings](assets/settings.png)
+
+---
+
+# 📂 Project Structure
+
+```text
+AI-Knowledge-Assistant/
+
+│
+
+├── chatbot/
+│   ├── main.py
+│   ├── models.py
+│   ├── database.py
+│   ├── security.py
+│   ├── build_database.py
+│   └── ...
+
+├── data/
+│   ├── Employee_Handbook.pdf
+│   ├── document_metadata.json
+│   └── ...
+
+├── vector_db/
+
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   └── ...
+
+├── requirements.txt
+
+└── README.md
+```
+
+---
+
+# 🚀 Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Mehnaz213/AI-Knowledge-Assistant.git
+
+cd AI-Knowledge-Assistant
+```
+
+---
+
+## Backend
+
+```bash
+python -m venv venv
+
+venv\Scripts\activate
+
+pip install -r requirements.txt
+
+uvicorn chatbot.main:app --reload
+```
+
+---
+
+## Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+# 🚀 Future Improvements
+
+- Agentic AI Workflow
+- Multi-Step Retrieval Planning
+- Intelligent Query Expansion
+- Confidence-Based Retrieval
+- Multi-Document Reasoning
+- Advanced RAG Evaluation
+- Cloud Deployment
+
+---
+
+# 👩‍💻 Author
+
+**Fathima Mehnaz**
+
+Artificial Intelligence & Machine Learning Engineering Student
+
+GitHub:
+https://github.com/Mehnaz213
+
+LinkedIn:
+https://www.linkedin.com/in/fathima-mehnaz
