@@ -294,7 +294,7 @@ npm run dev
 
 # 👩‍💻 Author
 
-**Fathima Mehnaz**
+**Fathimath Mehnaaz**
 
 Artificial Intelligence & Machine Learning Engineering Student
 
@@ -302,4 +302,4 @@ GitHub:
 https://github.com/Mehnaz213
 
 LinkedIn:
-https://www.linkedin.com/in/fathima-mehnaz
+https://www.linkedin.com/in/fathimath-mehnaaz/
