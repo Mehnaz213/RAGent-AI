@@ -28,14 +28,19 @@ function MainInterface() {
   const [messages, setMessages] = useState<
     Array<{
       id: string;
-      role: 'user' | 'assistant';
+      role: "user" | "assistant";
       content: string;
-      sources?: Array<{
+
+      sources?: {
         source: string;
         page: number;
-      }>;
+      }[];
 
-      question?: string;
+      agent?: {
+        tools: string[];
+        steps: string[];
+      };
+
     }>
   >([]);
   const [conversationId, setConversationId] = useState<number | null>(null);
@@ -142,10 +147,17 @@ function MainInterface() {
       const data = await response.json();
 
       const aiMessage = {
+
         id: (Date.now() + 1).toString(),
+
         role: "assistant" as const,
+
         content: data.answer,
+
         sources: data.sources,
+
+        agent: data.agent
+
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -280,7 +292,6 @@ function MainInterface() {
               setConversationId(data.id);
               console.log(data.messages);
               setMessages(
-
                 data.messages.map((m: any, index: number) => ({
 
                   id: index.toString(),
@@ -291,10 +302,10 @@ function MainInterface() {
 
                   sources: m.sources,
 
+                  agent: m.agent
+
                 }))
-
               );
-
               setCurrentPage("chat");
 
             }}

@@ -201,4 +201,10 @@ def retrieve_context(query, source=None):
 
     context = "\n\n".join(retrieved_chunks)
 
+    print("\n" + "=" * 80)
+    print("RETRIEVED CONTEXT")
+    print("=" * 80)
+    print(context)
+    print("=" * 80 + "\n")
+
     return context, cleaned_metadata

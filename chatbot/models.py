@@ -116,3 +116,5 @@ class Message(Base):
         back_populates="messages"
     )
     sources = Column(JSON, nullable=True)
+    # Agent execution details
+    agent = Column(JSON, nullable=True)

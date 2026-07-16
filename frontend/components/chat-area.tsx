@@ -13,13 +13,18 @@ import remarkGfm from "remark-gfm";
 
 interface Message {
     id: string;
-    role: 'user' | 'assistant';
+    role: "user" | "assistant";
     content: string;
 
     sources?: {
         source: string;
         page: number;
     }[];
+
+    agent?: {
+        tools: string[];
+        steps: string[];
+    };
 }
 
 interface ChatAreaProps {
@@ -147,7 +152,54 @@ export default function ChatArea({
                                         : "items-start"
                                         }`}
                                 >
+                                    {message.role === "assistant" &&
+                                        message.agent &&
+                                        message.agent.steps.length > 0 && (
 
+                                            <div className="w-full rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-4 mb-2">
+
+                                                <div className="flex items-center gap-2 mb-3">
+
+                                                    <Brain className="w-5 h-5 text-cyan-400" />
+
+                                                    <p className="font-semibold text-cyan-400">
+
+                                                        Agent Execution
+
+                                                    </p>
+
+                                                </div>
+
+                                                <div className="space-y-2">
+
+                                                    {message.agent.steps.map((step, index) => (
+
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center gap-2 text-sm"
+                                                        >
+
+                                                            <span className="text-green-400">
+
+                                                                ✓
+
+                                                            </span>
+
+                                                            <span>
+
+                                                                {step}
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    ))}
+
+                                                </div>
+
+                                            </div>
+
+                                        )}
                                     <div
                                         className={`rounded-2xl px-4 py-3 ${message.role === "user"
                                             ? "bg-primary text-white"
@@ -328,11 +380,11 @@ export default function ChatArea({
                                     <div className="flex flex-col">
 
                                         <span className="text-sm font-medium">
-                                            Searching Knowledge Base...
+                                            🤖 Agent is working...
                                         </span>
 
                                         <span className="text-xs text-muted-foreground">
-                                            Retrieving relevant documents and generating response.
+                                            Planning and executing your request.
                                         </span>
 
                                     </div>

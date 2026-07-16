@@ -56,6 +56,8 @@ from chatbot.title_generator import generate_title
 import json
 import shutil
 import subprocess
+# Import Agent Orchestrator
+from chatbot.agent.orchestrator import process_user_request
 
 DATA_FOLDER = "data"
 # Create FastAPI app
@@ -209,47 +211,6 @@ def download_document(
         media_type="application/pdf"
     )
 
-# Delete PDF + Embeddings
-@app.delete("/documents/{filename}")
-def delete_document(
-    filename: str,
-    current_user: dict = Depends(get_current_user)
-):
-
-    # PDF location
-    file_path = os.path.join(
-        DATA_FOLDER,
-        filename
-    )
-
-    # Check whether PDF exists
-    if not os.path.exists(file_path):
-        raise HTTPException(
-            status_code=404,
-            detail="Document not found."
-        )
-
-    # Delete PDF
-    os.remove(file_path)
-    # Connect to ChromaDB
-    client = chromadb.PersistentClient(
-        path=VECTOR_DB_PATH
-    )
-    # Open collection
-    collection = client.get_collection(
-        name="employee_handbook"
-    )
-
-    # Delete all chunks belonging to this PDF
-    collection.delete(
-        where={
-            "source": filename
-        }
-    )
-    return {
-        "message":
-        "Document and embeddings deleted successfully."
-    }
 # Upload PDF Endpoint
 @app.post("/upload")
 async def upload_pdf(
@@ -376,6 +337,39 @@ def get_conversations(
         for c in conversations
     ]
 
+@app.post("/conversation/new")
+def create_conversation(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    user = (
+        db.query(User)
+        .filter(User.email == current_user["email"])
+        .first()
+    )
+
+    conversation = Conversation(
+
+        title="New Chat",
+
+        user_id=user.id
+
+    )
+
+    db.add(conversation)
+
+    db.commit()
+
+    db.refresh(conversation)
+
+    return {
+
+        "conversation_id": conversation.id
+
+    }
+
+
 @app.get("/conversation/{conversation_id}")
 def get_conversation(
     conversation_id: int,
@@ -414,7 +408,8 @@ def get_conversation(
             "role": m.role,
             "content": m.content,
             "timestamp": m.timestamp,
-            "sources": m.sources
+            "sources": m.sources,
+            "agent": m.agent
           }
         for m in messages
       ]
@@ -521,28 +516,97 @@ def chat(
         status_code=404,
         detail="Conversation not found."
     )
+    # Ask the Agent which tool should handle the request
+    agent_response = process_user_request(request.question)
 
+    # Get the execution plan
+    tools = agent_response["tools"]
 
+    # Get the final agent result
+    result = agent_response["result"]
+
+    # If Knowledge Search is NOT required,
+    # save the response and return it.
+    if "knowledge_search" not in tools:
+
+        user_message = Message(
+
+           role="user",
+
+           content=original_question,
+
+           conversation_id=conversation.id
+
+        )
+
+        db.add(user_message)
+
+        assistant_message = Message(
+
+           role="assistant",
+
+           content=result,
+
+           conversation_id=conversation.id,
+
+           sources=[],
+
+           agent={
+              "tools": tools,
+              "steps": agent_response["steps"]
+           }
+
+        )
+
+        db.add(assistant_message)
+
+        if conversation.title == "New Chat":
+
+           try:
+
+              conversation.title = generate_title(original_question)
+
+           except Exception:
+
+              conversation.title = original_question[:40]
+
+        db.commit()
+
+        return {
+
+           "answer": result,
+
+           "sources": [],
+
+           "agent": {
+
+              "tools": tools,
+
+              "steps": agent_response["steps"]
+
+           }
+
+        }
     conversation_messages = []
 
-    if conversation:
-       previous_messages = (
-         db.query(Message)
-         .filter(
+    previous_messages = (
+        db.query(Message)
+        .filter(
             Message.conversation_id == conversation.id
-          )
-         .order_by(Message.id.asc())
-         .all()
         )
+        .order_by(Message.id.asc())
+        .all()
+    )
 
     # Keep only the last 8 messages
     previous_messages = previous_messages[-8:]
 
     for msg in previous_messages:
+
         conversation_messages.append(
             {
-                "role": msg.role,
-                "content": msg.content
+               "role": msg.role,
+               "content": msg.content
             }
         )
 
@@ -672,27 +736,49 @@ def chat(
     response = client.chat.completions.create(
     model=model,
     messages=messages,
-    temperature=0.2
+    temperature=0
     )
     # Extract AI response
     ai_response = response.choices[0].message.content
     if conversation:
 
       assistant_message = Message(
-        role="assistant",
-        content=ai_response,
-        conversation_id=conversation.id,
-        sources=retrieved_metadata
-      )
 
+        role="assistant",
+
+        content=ai_response,
+
+        conversation_id=conversation.id,
+
+        sources=retrieved_metadata,
+
+        agent={
+           "tools": tools,
+           "steps": agent_response["steps"]
+        }
+
+    )
       db.add(assistant_message)
       db.commit()
+
     # Return response along with source metadata
     return {
-    "question": user_question,
-    "answer": ai_response,
-    "sources": retrieved_metadata,
-    "timestamp": assistant_message.timestamp
+
+      "question": user_question,
+
+      "answer": ai_response,
+
+      "sources": retrieved_metadata,
+
+      "timestamp": assistant_message.timestamp,
+
+      "agent": {
+
+         "tools": tools,
+
+         "steps": agent_response["steps"]
+
+       }
     }
 @app.get("/users")
 def get_users(
