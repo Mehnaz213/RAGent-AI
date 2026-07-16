@@ -36,12 +36,13 @@ An enterprise-grade Retrieval-Augmented Generation (RAG) assistant that enables 
 
 # 📖 Overview
 
-RAGent AI is an Enterprise Knowledge Assistant designed to help employees retrieve information from company documents through natural language conversations.
+RAGent AI is an Enterprise AI Knowledge Assistant that enables employees to retrieve accurate information from organizational documents using natural language.
 
-The system combines Retrieval-Augmented Generation (RAG), semantic search, vector embeddings, and Large Language Models to provide accurate, context-aware answers with source citations.
+The system combines Retrieval-Augmented Generation (RAG), semantic search, vector embeddings, and Large Language Models (LLMs) to deliver context-aware answers with source citations.
 
-Administrators can manage users, upload organizational documents, monitor analytics, and maintain the enterprise knowledge base, while employees can securely interact with the chatbot to access company information instantly.
+Beyond traditional RAG, RAGent AI now includes an Agentic AI layer capable of planning user requests, selecting appropriate tools, executing multi-step workflows, and displaying its reasoning process through an Agent Execution interface.
 
+Administrators can securely manage users, upload organizational documents, monitor analytics, and maintain the enterprise knowledge base, while employees can interact with an intelligent AI assistant to instantly access company knowledge.
 ---
 
 # ✨ Features
@@ -95,68 +96,118 @@ Administrators can manage users, upload organizational documents, monitor analyt
 
 ---
 
+# 🤖 Agentic AI Features
+
+Unlike a traditional RAG chatbot, RAGent AI includes an AI Agent capable of reasoning, selecting tools, and executing multi-step workflows automatically.
+
+### 🧠 Agent Planner
+
+- Understands user intent
+- Chooses the appropriate tools
+- Plans multi-step execution
+- Displays execution reasoning
+
+### 🛠 Available AI Tools
+
+- Knowledge Search
+- Leave Application Generator
+- Email Generator
+- Document Summarizer
+- Professional Text Rewriter
+- Policy Comparison
+
+### ⚡ Multi-Step Execution
+
+Example:
+
+```text
+User
+↓
+
+Summarize the Leave Policy
+and generate an email requesting leave
+
+↓
+
+Knowledge Search
+
+↓
+
+Summarization
+
+↓
+
+Email Generation
+
+↓
+
+Final Response
+```
+
+Every execution step is displayed to the user through the **Agent Execution** panel.
+
 # 🏗️ System Architecture
 
+```text
+                     User
+
+                       │
+
+                       ▼
+
+              Next.js Frontend
+
+                       │
+
+                       ▼
+
+               FastAPI Backend
+
+                       │
+
+                       ▼
+
+                 AI Agent Planner
+
+      ┌───────────────┼────────────────┐
+
+      ▼               ▼                ▼
+
+Knowledge Search   Email Tool    Leave Generator
+
+      ▼               ▼                ▼
+
+  ChromaDB        OpenRouter LLM     OpenRouter LLM
+
+      ▼
+
+Vector Embeddings
+
+      ▼
+
+Retrieved Context
+
+      ▼
+
+Large Language Model
+
+      ▼
+
+Final Response
 ```
-                  User
-
-                    │
-
-                    ▼
-
-           Next.js Frontend
-
-                    │
-
-                    ▼
-
-            FastAPI Backend
-
-        ┌───────────┴────────────┐
-
-        ▼                        ▼
-
-    SQLite DB              ChromaDB
-
-        ▼                        ▼
-
- Authentication          Vector Embeddings
-
-        │                        │
-
-        └──────────► Large Language Model
-```
-
----
-
-# 🛠️ Tech Stack
-
-## Frontend
-
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Lucide Icons
-
-## Backend
-
-- FastAPI
-- SQLAlchemy
-- JWT Authentication
-- Passlib
-- SQLite
 
 ## AI Stack
 
-- LangChain
+- Retrieval-Augmented Generation (RAG)
+- OpenRouter LLM
 - Sentence Transformers
+- Cross Encoder Re-ranking
 - ChromaDB
 - Hugging Face Embeddings
 - PyPDF
-
----
-
+- Agent Planner
+- Multi-tool Orchestration
+  
 # 📸 Screenshots
 
 ## 🔐 Login
@@ -168,6 +219,56 @@ Administrators can manage users, upload organizational documents, monitor analyt
 ## 💬 AI Chat
 
 ![Chat](assets/chat.png)
+
+---
+
+# 🤖 Agentic AI Workflow
+
+RAGent AI goes beyond traditional Retrieval-Augmented Generation by incorporating an AI Agent capable of reasoning, planning, and executing multiple tools automatically to complete complex user requests.
+
+### Step 1 — Planning & Task Decomposition
+
+The user submits a complex request that requires multiple capabilities.
+
+**Example Request**
+
+> Summarize the leave policy and write an email requesting leave.
+
+The Agent Planner analyzes the request and determines which tools should be executed in sequence.
+
+**Tools Selected**
+
+- Knowledge Search
+- Summarization
+- Email Generation
+
+The complete execution process is displayed transparently through the **Agent Execution** panel.
+
+![Agent Planning](assets/agent-execution-1.png)
+
+---
+
+### Step 2 — Knowledge Retrieval & Reasoning
+
+The AI Agent retrieves the relevant information from the enterprise knowledge base using Retrieval-Augmented Generation (RAG), performs semantic search over indexed company documents, and generates a concise summary of the retrieved policy before continuing to the next task.
+
+This intermediate reasoning step allows users to understand how the final answer is produced rather than treating the system as a black box.
+
+![Knowledge Retrieval](assets/agent-execution-2.png)
+
+---
+
+### Step 3 — Final Response Generation
+
+Using the summarized organizational knowledge, the AI Agent automatically generates a professional leave request email.
+
+The entire workflow—from retrieving company policies to producing the final email—is completed within a single conversation without requiring additional user interaction.
+
+This demonstrates the system's ability to orchestrate multiple AI tools and complete complex enterprise tasks autonomously.
+
+![Final Response](assets/agent-execution-3.png)
+
+---
 
 ---
 
@@ -282,12 +383,16 @@ npm run dev
 
 # 🚀 Future Improvements
 
-- Agentic AI Workflow
-- Multi-Step Retrieval Planning
-- Intelligent Query Expansion
-- Confidence-Based Retrieval
-- Multi-Document Reasoning
-- Advanced RAG Evaluation
+- Multi-Agent Collaboration
+- Long-Term Agent Memory
+- Calendar Integration
+- Outlook & Gmail Integration
+- Slack & Microsoft Teams Integration
+- Voice-Based Enterprise Assistant
+- HR Workflow Automation
+- IT Support Agent
+- Report Generation Agent
+- SQL Database Agent
 - Cloud Deployment
 
 ---
