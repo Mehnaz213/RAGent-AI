@@ -10,20 +10,11 @@ from fastapi import (
 # Import CORS Middleware
 from fastapi.middleware.cors import CORSMiddleware
 # Import BaseModel from Pydantic
-import time
 from pydantic import BaseModel
-# OpenRouter Client
-from openai import OpenAI
-# Load environment variables
-from dotenv import load_dotenv
-# Read environment variables
-import os
-# Import Retriever
-from chatbot.retriever import retrieve_context
 # Import complete PDF ingestion pipeline
 from chatbot.pdf_processor import ingest_pdf
 # Import database engine and Base
-from chatbot.database import SessionLocal, engine, Base
+from chatbot.database import engine, Base
 # Import User model
 from chatbot.models import (
     User,
@@ -44,20 +35,18 @@ from chatbot.security import (
     verify_password,
     hash_password
 )
-import chromadb
-from chatbot.paths import VECTOR_DB_PATH
 from chatbot.paths import DATA_FOLDER
-from chatbot.text_cleaner import clean_context
 from chatbot.spell_checker import correct_spelling
 from chatbot.query_rewriter import rewrite_query
 from chatbot.export_chat import export_pdf
-from datetime import datetime, UTC
 from chatbot.title_generator import generate_title
 import json
 import shutil
 import subprocess
+import os
 # Import Agent Orchestrator
 from chatbot.agent.orchestrator import process_user_request
+from chatbot.rag import generate_rag_answer
 
 DATA_FOLDER = "data"
 # Create FastAPI app
@@ -77,69 +66,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Load .env file
-load_dotenv()
-# Read API Key
-api_key = os.getenv("OPENROUTER_API_KEY")
-# Read Model Name
-model = os.getenv("OPENROUTER_MODEL")
-
-# Create OpenRouter Client
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://openrouter.ai/api/v1"
-)
-
-# Store conversation history
-chat_history = [
-    {
-        "role": "system",
-        "content": """
-You are an Enterprise AI Knowledge Assistant.
-
-Your job is to answer ONLY using the retrieved document context.
-
-Rules:
-
-Prefer answering from uploaded documents.
-
-If the uploaded documents contain enough information,
-use only those documents.
-
-If they contain only partial information,
-answer from the document first.
-
-Then provide a separate section titled:
-
-## General Explanation (Not from uploaded documents)
-
-If no relevant document exists,
-clearly state that the answer comes from general knowledge.
-
-Formatting Rules:
-
-• Start with a short title if appropriate.
-• Write in professional business English.
-• Use headings where suitable.
-• Use bullet points instead of long paragraphs.
-• Convert tables into bullet lists.
-• Never copy raw PDF formatting.
-• Remove repeated words and broken symbols.
-• Highlight important numbers and policies using **bold**.
-• Keep answers concise and easy to read.
-• End naturally without mentioning the prompt or context.
-
-Return all responses in Markdown.
-Use:
-# for titles
-## for headings
-- for bullet points
-**bold** for important values
-Avoid plain text paragraphs whenever possible.
-"""
-    }
-]
 
 # Request Model
 class ChatRequest(BaseModel):
@@ -175,7 +101,7 @@ def about():
         "frontend": "Next.js",
         "backend": "Python",
         "database": "ChromaDB",
-        "AI Model": "OpenRouter"
+        "AI Model": "Gemini 2.5 Flash"
     }
 # Download PDF
 @app.get("/download/{filename}")
@@ -508,6 +434,7 @@ def chat(
 ):
     # Get user's question
     original_question = request.question
+    user_question = correct_spelling(original_question)
     conversation = db.query(Conversation).filter(
        Conversation.id == request.conversation_id
     ).first()
@@ -516,8 +443,33 @@ def chat(
         status_code=404,
         detail="Conversation not found."
     )
+    previous_messages = (
+        db.query(Message)
+        .filter(
+            Message.conversation_id == conversation.id
+        )
+        .order_by(Message.id.asc())
+        .all()
+    )
+    conversation_messages = []
+
+    # Keep only the last 8 messages
+    previous_messages = previous_messages[-8:]
+
+    for msg in previous_messages:
+
+        conversation_messages.append(
+            {
+               "role": msg.role,
+               "content": msg.content
+            }
+        )
+
     # Ask the Agent which tool should handle the request
-    agent_response = process_user_request(request.question)
+    agent_response = process_user_request(
+       user_question,
+       conversation_messages
+    )
 
     # Get the execution plan
     tools = agent_response["tools"]
@@ -587,29 +539,7 @@ def chat(
            }
 
         }
-    conversation_messages = []
-
-    previous_messages = (
-        db.query(Message)
-        .filter(
-            Message.conversation_id == conversation.id
-        )
-        .order_by(Message.id.asc())
-        .all()
-    )
-
-    # Keep only the last 8 messages
-    previous_messages = previous_messages[-8:]
-
-    for msg in previous_messages:
-
-        conversation_messages.append(
-            {
-               "role": msg.role,
-               "content": msg.content
-            }
-        )
-
+    
     db.add(
        Message(
         role="user",
@@ -626,7 +556,6 @@ def chat(
 
     db.commit()
 
-    user_question = correct_spelling(original_question)
     try:
       rewritten_question = rewrite_query(
         user_question,
@@ -640,106 +569,12 @@ def chat(
     print("Rewritten:", rewritten_question)
     print("Logged in User:", current_user["email"])
     print("Role:", current_user["role"])
-    # Retrieve relevant document context
-    context, retrieved_metadata = retrieve_context(
-    rewritten_question
+    
+    # Generate RAG response
+    ai_response, retrieved_metadata = generate_rag_answer(
+      question=rewritten_question,
+      conversation_messages=conversation_messages
     )
-    context = clean_context(context)
-    has_context = bool(context.strip())
-
-    for item in retrieved_metadata:
-        print(item)
-
-    # Add prompt depending on whether document context exists
-    messages = [
-
-    {
-        "role": "system",
-        "content": chat_history[0]["content"]
-    }
-
-    ]
-
-    messages.extend(conversation_messages)
-
-    if has_context:
-
-       messages.append(
-     {
-       "role": "user",
-       "content": f"""
-       Document Context:
-
-      {context}
-
-      Previous Conversation:
-
-      {conversation_messages}
-
-      Current User Question:
-
-      {original_question}
-
-      Instructions:
-
-      1. Use the Document Context as the primary source.
-
-      2. Use the Previous Conversation only to resolve references like:
-      - it
-      - they
-      - this
-      - that
-      - those
-      - he
-      - she
-
-      3. If the answer can be inferred from multiple document chunks,
-      combine them into one answer.
-
-      4. Do NOT require an exact sentence match.
-
-      5. Only reply
-
-      The requested information is not available in the provided document.
-
-      when the retrieved document contains absolutely no relevant information.
-
-      Return the answer in clean Markdown.
-      """
-      }
-    )
-    else:
-
-      messages.append(
-        {
-            "role": "user",
-            "content": f"""
-        Previous Conversation:
-
-        {conversation_messages}
-
-        Current User Question:
-
-        {original_question}
-
-        Instructions:
-
-        - Use the previous conversation for context.
-        - No relevant information was found in the uploaded documents.
-        - Answer using your general knowledge.
-        - Clearly mention that the answer is not taken from the uploaded documents.
-        - Return the answer in clean Markdown.
-        """
-        }
-    )
-    # Generate AI response
-    response = client.chat.completions.create(
-    model=model,
-    messages=messages,
-    temperature=0
-    )
-    # Extract AI response
-    ai_response = response.choices[0].message.content
     if conversation:
 
       assistant_message = Message(

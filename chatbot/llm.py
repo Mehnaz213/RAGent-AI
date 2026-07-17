@@ -1,63 +1,55 @@
-# Import OpenAI client
-from openai import OpenAI
-
-# Load environment variables
-from dotenv import load_dotenv
-
-# Import os module
 import os
 
-# Read the .env file
+from dotenv import load_dotenv
+from google import genai
+from google.genai.errors import ClientError
+
 load_dotenv()
 
-# Read OpenRouter API Key
-api_key = os.getenv("OPENROUTER_API_KEY")
+API_KEY = os.getenv("GOOGLE_API_KEY")
+MODEL = os.getenv("MODEL_NAME", "gemini-flash-latest")
+print("MODEL =", MODEL)
 
-# Read OpenRouter model name
-model = os.getenv("OPENROUTER_MODEL")
+client = genai.Client(api_key=API_KEY)
 
-# Create OpenRouter client
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://openrouter.ai/api/v1"
-)
 
-# Generate AI Response
 def generate_response(
     system_prompt: str,
     user_prompt: str
 ):
     """
-    Sends a prompt to the LLM
-    and returns the generated response.
+    Generates a response using Google Gemini.
     """
 
-    # Generate response using OpenRouter
-    response = client.chat.completions.create(
+    try:
+        response = client.models.generate_content(
+            model=MODEL,
+            contents=f"""
+SYSTEM INSTRUCTIONS
 
-        # AI Model
-        model=model,
+{system_prompt}
 
-        # Lower temperature for consistent responses
-        temperature=0,
+----------------------------------------
 
-        # Conversation messages
-        messages=[
+USER REQUEST
 
-            # System Prompt
-            {
-                "role": "system",
-                "content": system_prompt
-            },
+{user_prompt}
+"""
+        )
 
-            # User Prompt
-            {
-                "role": "user",
-                "content": user_prompt
-            }
+        return response.text.strip()
 
-        ]
-    )
+    except ClientError as e:
+        print("Gemini API Error:", e)
 
-    # Return only the generated text
-    return response.choices[0].message.content
+        return (
+            "⚠️ The AI service is temporarily unavailable because the API quota "
+            "has been reached. Please try again after a short while."
+        )
+
+    except Exception as e:
+        print("Unexpected Error:", e)
+
+        return (
+            "⚠️ An unexpected error occurred while generating the response."
+        )

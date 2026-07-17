@@ -12,7 +12,7 @@ SECRET_KEY = "your_super_secret_key_change_this"
 # JWT algorithm
 ALGORITHM = "HS256"
 # Token expiry time (minutes)
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 # Password hashing configuration
 pwd_context = CryptContext(
