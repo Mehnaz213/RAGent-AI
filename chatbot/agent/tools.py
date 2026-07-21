@@ -8,6 +8,10 @@ from chatbot.agent.prompts import (
     COMPARISON_SYSTEM_PROMPT,
     SUMMARY_SYSTEM_PROMPT,
     REWRITE_SYSTEM_PROMPT,
+    LETTER_SYSTEM_PROMPT,
+    REPORT_SYSTEM_PROMPT,
+    NOTICE_SYSTEM_PROMPT,
+    PROPOSAL_SYSTEM_PROMPT,
 )
 
 
@@ -37,7 +41,9 @@ Task:
     return user_query
 
 
+# -----------------------------
 # Knowledge Search Tool
+# -----------------------------
 def knowledge_search_tool(
     user_query: str,
     previous_output=None
@@ -47,7 +53,9 @@ def knowledge_search_tool(
     return user_query
 
 
+# -----------------------------
 # Leave Application Tool
+# -----------------------------
 def leave_application_tool(
     user_query: str,
     previous_output=None
@@ -65,7 +73,9 @@ def leave_application_tool(
     )
 
 
+# -----------------------------
 # Email Generator Tool
+# -----------------------------
 def email_generation_tool(
     user_query: str,
     previous_output=None
@@ -83,7 +93,9 @@ def email_generation_tool(
     )
 
 
+# -----------------------------
 # Summarization Tool
+# -----------------------------
 def summarization_tool(
     user_query: str,
     previous_output=None
@@ -101,7 +113,9 @@ def summarization_tool(
     )
 
 
+# -----------------------------
 # Rewrite Tool
+# -----------------------------
 def rewrite_tool(
     user_query: str,
     previous_output=None
@@ -119,7 +133,9 @@ def rewrite_tool(
     )
 
 
+# -----------------------------
 # Comparison Tool
+# -----------------------------
 def comparison_tool(
     user_query: str,
     previous_output=None
@@ -133,5 +149,85 @@ def comparison_tool(
 
     return generate_response(
         COMPARISON_SYSTEM_PROMPT,
+        prompt
+    )
+
+
+# -----------------------------
+# Letter Generation Tool
+# -----------------------------
+def letter_generation_tool(
+    user_query: str,
+    previous_output=None
+):
+
+    prompt = build_prompt(
+        user_query,
+        previous_output,
+        "Generate ONLY the letter."
+    )
+
+    return generate_response(
+        LETTER_SYSTEM_PROMPT,
+        prompt
+    )
+
+
+# -----------------------------
+# Report Generation Tool
+# -----------------------------
+def report_generation_tool(
+    user_query: str,
+    previous_output=None
+):
+
+    prompt = build_prompt(
+        user_query,
+        previous_output,
+        "Generate ONLY the report."
+    )
+
+    return generate_response(
+        REPORT_SYSTEM_PROMPT,
+        prompt
+    )
+
+
+# -----------------------------
+# Notice Generation Tool
+# -----------------------------
+def notice_generation_tool(
+    user_query: str,
+    previous_output=None
+):
+
+    prompt = build_prompt(
+        user_query,
+        previous_output,
+        "Generate ONLY the notice."
+    )
+
+    return generate_response(
+        NOTICE_SYSTEM_PROMPT,
+        prompt
+    )
+
+
+# -----------------------------
+# Proposal Generation Tool
+# -----------------------------
+def proposal_generation_tool(
+    user_query: str,
+    previous_output=None
+):
+
+    prompt = build_prompt(
+        user_query,
+        previous_output,
+        "Generate ONLY the proposal."
+    )
+
+    return generate_response(
+        PROPOSAL_SYSTEM_PROMPT,
         prompt
     )

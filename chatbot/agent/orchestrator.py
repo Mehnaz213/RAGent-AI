@@ -8,7 +8,11 @@ from chatbot.agent.tools import (
     email_generation_tool,
     summarization_tool,
     rewrite_tool,
-    comparison_tool
+    comparison_tool,
+    letter_generation_tool,
+    report_generation_tool,
+    notice_generation_tool,
+    proposal_generation_tool,
 )
 
 
@@ -72,6 +76,46 @@ def process_user_request(
                user_query,
                previous_output=current_output or previous_output
             )
+
+        #letter generation
+        elif tool == "letter_generation":
+
+          steps.append("Generating Letter")
+
+          current_output = letter_generation_tool(
+            user_query,
+            previous_output=current_output or previous_output
+          )
+
+        #report
+        elif tool == "report_generation":
+
+           steps.append("Generating Report")
+
+           current_output = report_generation_tool(
+              user_query,
+              previous_output=current_output or previous_output
+           )
+
+        #notice
+        elif tool == "notice_generation":
+
+           steps.append("Generating Notice")
+
+           current_output = notice_generation_tool(
+              user_query,
+              previous_output=current_output or previous_output
+           )
+
+        #proposal
+        elif tool == "proposal_generation":
+
+           steps.append("Generating Proposal")
+
+           current_output = proposal_generation_tool(
+              user_query,
+              previous_output=current_output or previous_output
+           )
 
         # Summary
         elif tool == "summarization":
