@@ -54,6 +54,9 @@ Administrators can securely manage users, upload organizational documents, monit
 - Context-Aware Responses
 - Source Citations
 - Persistent Conversations
+- Agentic AI Planning
+- Multi-Step Task Execution
+- AI-Powered Document Generation
 
 ### 📚 Knowledge Base
 
@@ -100,6 +103,21 @@ Administrators can securely manage users, upload organizational documents, monit
 
 Unlike a traditional RAG chatbot, RAGent AI includes an AI Agent capable of reasoning, selecting tools, and executing multi-step workflows automatically.
 
+### 📄 AI Document Generation
+
+The AI Agent can automatically generate professional business documents based on user requests.
+
+Supported document types include:
+
+- Professional Emails
+- Leave Applications
+- Business Letters
+- Enterprise Reports
+- Official Notices
+- Project Proposals
+
+The agent selects the appropriate document generation tool automatically based on the user's request.
+
 ### 🧠 Agent Planner
 
 - Understands user intent
@@ -110,8 +128,12 @@ Unlike a traditional RAG chatbot, RAGent AI includes an AI Agent capable of reas
 ### 🛠 Available AI Tools
 
 - Knowledge Search
-- Leave Application Generator
 - Email Generator
+- Leave Application Generator
+- Letter Generator
+- Report Generator
+- Notice Generator
+- Proposal Generator
 - Document Summarizer
 - Professional Text Rewriter
 - Policy Comparison
@@ -143,57 +165,76 @@ Email Generation
 
 Final Response
 ```
+### Example
+
+```text
+User
+
+↓
+
+Generate a report on the Employee Handbook
+
+↓
+
+Knowledge Search
+
+↓
+
+Report Generation
+
+↓
+
+Professional Report
+```
+
 
 Every execution step is displayed to the user through the **Agent Execution** panel.
 
 # 🏗️ System Architecture
 
 ```text
-                     User
-
-                       │
-
-                       ▼
-
-              Next.js Frontend
-
-                       │
-
-                       ▼
-
-               FastAPI Backend
-
-                       │
-
-                       ▼
-
-                 AI Agent Planner
-
-      ┌───────────────┼────────────────┐
-
-      ▼               ▼                ▼
-
-Knowledge Search   Email Tool    Leave Generator
-
-      ▼               ▼                ▼
-
-  ChromaDB        OpenRouter LLM     OpenRouter LLM
-
+                          User
+                            │
+                            ▼
+                   Next.js Frontend
+                            │
+                            ▼
+                    FastAPI Backend
+                            │
+                            ▼
+                    AI Agent Planner
+                            │
+             Intent Detection & Task Planning
+                            │
+                            ▼
+                 Multi-Tool Orchestrator
+                            │
+      ┌─────────────────────┼─────────────────────┐
+      │                     │                     │
+      ▼                     ▼                     ▼
+Knowledge Search     Document Generation   Text Processing
+      │                     │                     │
+      │        ┌────────────┼─────────────┐       │
+      │        ▼            ▼             ▼       ▼
+      │     Emails       Letters      Reports  Rewrite
+      │        │            │             │
+      │        ▼            ▼             ▼
+      │     Notices    Leave Apps    Proposals
+      │
       ▼
-
-Vector Embeddings
-
+ChromaDB Vector Database
+      │
       ▼
-
+Semantic Search & Retrieval
+      │
+      ▼
 Retrieved Context
-
+      │
       ▼
-
 Large Language Model
-
+      │
       ▼
-
-Final Response
+Context-Aware Final Response
 ```
 
 ## AI Stack
@@ -385,13 +426,13 @@ npm run dev
 
 - Multi-Agent Collaboration
 - Long-Term Agent Memory
+- Workflow Automation Agent
 - Calendar Integration
 - Outlook & Gmail Integration
 - Slack & Microsoft Teams Integration
 - Voice-Based Enterprise Assistant
 - HR Workflow Automation
 - IT Support Agent
-- Report Generation Agent
 - SQL Database Agent
 - Cloud Deployment
 
